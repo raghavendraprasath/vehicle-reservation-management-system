@@ -1,4 +1,5 @@
--- Check if sequence exists, drop if it does, then create
+
+-- Check if sequence exists, drop if it does, then create;
 BEGIN
     EXECUTE IMMEDIATE 'DROP SEQUENCE user_seq';
 EXCEPTION
@@ -29,6 +30,24 @@ CREATE TABLE Users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     role VARCHAR2(20),
     CONSTRAINT chk_role CHECK (role IN ('user', 'admin'))
+);
+
+
+
+
+BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLE Locations CASCADE CONSTRAINTS';
+EXCEPTION
+    WHEN OTHERS THEN
+        NULL; -- Ignore errors if table does not exist
+END;
+/
+CREATE TABLE Locations (
+    location_id NUMBER PRIMARY KEY,
+    address VARCHAR2(255) NOT NULL,
+    city VARCHAR2(100) NOT NULL,
+    state VARCHAR2(100) NOT NULL,
+    zip_code VARCHAR2(10) NOT NULL
 );
 
 
@@ -68,23 +87,6 @@ CREATE TABLE Vehicle_Price_Changes (
     new_price NUMBER(10, 2) NOT NULL,
     change_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (vehicle_id) REFERENCES Vehicles(vehicle_id)
-);
-
-
-
-BEGIN
-    EXECUTE IMMEDIATE 'DROP TABLE Locations CASCADE CONSTRAINTS';
-EXCEPTION
-    WHEN OTHERS THEN
-        NULL; -- Ignore errors if table does not exist
-END;
-/
-CREATE TABLE Locations (
-    location_id NUMBER PRIMARY KEY,
-    address VARCHAR2(255) NOT NULL,
-    city VARCHAR2(100) NOT NULL,
-    state VARCHAR2(100) NOT NULL,
-    zip_code VARCHAR2(10) NOT NULL
 );
 
 
