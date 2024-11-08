@@ -1,17 +1,3 @@
-
--- Check if sequence exists, drop if it does, then create;
-BEGIN
-    EXECUTE IMMEDIATE 'DROP SEQUENCE user_seq';
-EXCEPTION
-    WHEN OTHERS THEN
-        NULL; -- Ignore errors if sequence does not exist
-END;
-/
-CREATE SEQUENCE user_seq
-    START WITH 1
-    INCREMENT BY 1
-    NOCACHE;
-
 BEGIN
     EXECUTE IMMEDIATE 'DROP TABLE Users CASCADE CONSTRAINTS';
 EXCEPTION
@@ -19,6 +5,7 @@ EXCEPTION
         NULL; -- Ignore errors if table does not exist
 END;
 /
+
 CREATE TABLE Users (
     user_id NUMBER PRIMARY KEY,
     first_name VARCHAR2(50) NOT NULL,
@@ -33,6 +20,21 @@ CREATE TABLE Users (
 );
 
 
+-- Clear existing data
+DELETE FROM Users;
+
+-- Insert new data
+INSERT INTO Users (user_id, first_name, last_name, email, password, driver_license, phone_number, role) VALUES
+(1, 'John', 'Doe', 'john.doe@example.com', 'password123', 'D123456', '123-456-7890', 'user'),
+(2, 'Jane', 'Smith', 'jane.smith@example.com', 'password123', 'D654321', '234-567-8901', 'user'),
+(3, 'Alice', 'Johnson', 'alice.j@example.com', 'password123', 'D789123', '345-678-9012', 'admin'),
+(4, 'Bob', 'Brown', 'bob.brown@example.com', 'password123', 'D321789', '456-789-0123', 'user'),
+(5, 'Carol', 'White', 'carol.w@example.com', 'password123', 'D456789', '567-890-1234', 'user'),
+(6, 'David', 'Black', 'david.b@example.com', 'password123', 'D987654', '678-901-2345', 'user'),
+(7, 'Emma', 'Green', 'emma.g@example.com', 'password123', 'D147258', '789-012-3456', 'user'),
+(8, 'Frank', 'Blue', 'frank.b@example.com', 'password123', 'D369852', '890-123-4567', 'user');
+
+
 
 
 BEGIN
@@ -44,11 +46,63 @@ END;
 /
 CREATE TABLE Locations (
     location_id NUMBER PRIMARY KEY,
+    user_id NUMBER,
     address VARCHAR2(255) NOT NULL,
     city VARCHAR2(100) NOT NULL,
     state VARCHAR2(100) NOT NULL,
-    zip_code VARCHAR2(10) NOT NULL
+    zip_code VARCHAR2(10) NOT NULL,
+    longitude NUMBER(9, 4),
+    latitude NUMBER(9, 4),
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
 );
+
+
+-- Clear existing data
+DELETE FROM Locations;
+
+-- Insert new data
+INSERT INTO Locations (location_id, user_id, address, city, state, zip_code, longitude, latitude) VALUES
+(1, 1, '123 Elm St', 'Springfield', 'IL', '62701', -89.6500, 39.8000),
+(2, 2, '456 Oak St', 'Springfield', 'IL', '62702', -89.6501, 39.8001),
+(3, 3, '789 Pine St', 'Springfield', 'IL', '62703', -89.6502, 39.8002),
+(4, 4, '101 Maple St', 'Springfield', 'IL', '62704', -89.6503, 39.8003),
+(5, 5, '202 Cedar St', 'Chicago', 'IL', '62705', -89.6504, 39.8004),
+(6, 6, '303 Birch St', 'Chicago', 'IL', '62706', -89.6505, 39.8005),
+(7, 7, '404 Willow St', 'Chicago', 'IL', '62707', -89.6506, 39.8006),
+(8, 8, '505 Aspen St', 'Chicago', 'IL', '62708', -89.6507, 39.8007);
+
+
+
+
+BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLE User_Locations CASCADE CONSTRAINTS';
+EXCEPTION
+    WHEN OTHERS THEN
+        NULL; -- Ignore errors if table does not exist
+END;
+/
+CREATE TABLE User_Locations (
+    user_id NUMBER PRIMARY KEY,
+    location_id NUMBER,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id),
+    FOREIGN KEY (location_id) REFERENCES Locations(location_id)
+);
+
+
+-- Clear existing data
+DELETE FROM User_Locations;
+
+-- Insert new data
+INSERT INTO User_Locations (user_id, location_id) VALUES
+(1, 1),
+(2, 2),
+(3, 3),
+(4, 4),
+(5, 5),
+(6, 6),
+(7, 7),
+(8, 8);
+
 
 
 
@@ -65,12 +119,62 @@ CREATE TABLE Vehicles (
     model VARCHAR2(50) NOT NULL,
     year NUMBER NOT NULL,
     status VARCHAR2(20) DEFAULT 'Available',
-    CHECK (status IN ('Available', 'Reserved', 'In Maintenance')),
+    assigned_to_reservation VARCHAR2(20) DEFAULT 'No' CHECK (assigned_to_reservation IN ('Yes', 'No')),
     location_id NUMBER,
     price_per_hour NUMBER(10, 2) NOT NULL,
     max_retail_price NUMBER(10, 2) NOT NULL,
+    longitude NUMBER(9, 4),
+    latitude NUMBER(9, 4),
     FOREIGN KEY (location_id) REFERENCES Locations(location_id)
 );
+
+
+-- Clear existing data
+DELETE FROM Vehicles;
+
+-- Insert new data
+INSERT INTO Vehicles (vehicle_id, make, model, year, status, assigned_to_reservation, location_id, price_per_hour, max_retail_price, longitude, latitude) VALUES
+(1, 'Toyota', 'Camry', 2020, 'Available', 'No', 1, 15.50, 25000, -89.6500, 39.8000),
+(2, 'Honda', 'Civic', 2021, 'Available', 'No', 2, 17.00, 22000, -89.6501, 39.8001),
+(3, 'Ford', 'Focus', 2019, 'Available', 'No', 3, 12.75, 18000, -89.6502, 39.8002),
+(4, 'Chevrolet', 'Malibu', 2018, 'Available', 'No', 4, 16.00, 21000, -89.6503, 39.8003),
+(5, 'Nissan', 'Altima', 2020, 'Available', 'No', 5, 18.25, 23000, -89.6504, 39.8004),
+(6, 'Hyundai', 'Elantra', 2021, 'Available', 'No', 6, 14.50, 20000, -89.6505, 39.8005),
+(7, 'Volkswagen', 'Passat', 2019, 'Available', 'No', 7, 15.75, 19000, -89.6506, 39.8006),
+(8, 'Subaru', 'Impreza', 2022, 'Available', 'No', 8, 19.00, 24000, -89.6507, 39.8007);
+
+
+
+
+BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLE Vehicle_Locations CASCADE CONSTRAINTS';
+EXCEPTION
+    WHEN OTHERS THEN
+        NULL; -- Ignore errors if table does not exist
+END;
+/
+CREATE TABLE Vehicle_Locations (
+    vehicle_id NUMBER PRIMARY KEY,
+    location_id NUMBER,
+    FOREIGN KEY (vehicle_id) REFERENCES Vehicles(vehicle_id),
+    FOREIGN KEY (location_id) REFERENCES Locations(location_id)
+);
+
+
+-- Clear existing data
+DELETE FROM Vehicle_Locations;
+
+-- Insert new data
+INSERT INTO Vehicle_Locations (vehicle_id, location_id) VALUES
+(1, 1),
+(2, 2),
+(3, 3),
+(4, 4),
+(5, 5),
+(6, 6),
+(7, 7),
+(8, 8);
+
 
 
 BEGIN
@@ -90,6 +194,22 @@ CREATE TABLE Vehicle_Price_Changes (
 );
 
 
+-- Clear existing data
+DELETE FROM Vehicle_Price_Changes;
+
+-- Insert new data
+INSERT INTO Vehicle_Price_Changes (price_change_id, vehicle_id, old_price, new_price, change_date) VALUES
+(1, 1, 15.00, 15.50, SYSTIMESTAMP - INTERVAL '10' DAY),
+(2, 2, 16.50, 17.00, SYSTIMESTAMP - INTERVAL '9' DAY),
+(3, 3, 12.50, 12.75, SYSTIMESTAMP - INTERVAL '8' DAY),
+(4, 4, 15.75, 16.00, SYSTIMESTAMP - INTERVAL '7' DAY),
+(5, 5, 18.00, 18.25, SYSTIMESTAMP - INTERVAL '6' DAY),
+(6, 6, 14.25, 14.50, SYSTIMESTAMP - INTERVAL '5' DAY),
+(7, 7, 15.50, 15.75, SYSTIMESTAMP - INTERVAL '4' DAY),
+(8, 8, 18.75, 19.00, SYSTIMESTAMP - INTERVAL '3' DAY);
+
+
+
 
 BEGIN
     EXECUTE IMMEDIATE 'DROP TABLE Reservations CASCADE CONSTRAINTS';
@@ -105,8 +225,24 @@ CREATE TABLE Reservations (
     start_time TIMESTAMP NOT NULL,
     end_time TIMESTAMP NOT NULL,
     location_id NUMBER,
-    status VARCHAR2(20) CHECK (status IN ('Confirmed', 'Cancelled', 'Completed')),
+    status VARCHAR2(20) CHECK (status IN ('Confirmed', 'Cancelled', 'Completed', 'Pending')),
     FOREIGN KEY (user_id) REFERENCES Users(user_id),
     FOREIGN KEY (vehicle_id) REFERENCES Vehicles(vehicle_id),
     FOREIGN KEY (location_id) REFERENCES Locations(location_id)
 );
+
+
+-- Clear existing data
+DELETE FROM Reservations;
+
+-- Insert new data
+INSERT INTO Reservations (reservation_id, user_id, vehicle_id, start_time, end_time, location_id, status) VALUES
+(1, 1, 1, SYSTIMESTAMP - INTERVAL '20' DAY, SYSTIMESTAMP - INTERVAL '18' DAY, 1, 'Completed'),
+(2, 2, 2, SYSTIMESTAMP - INTERVAL '15' DAY, SYSTIMESTAMP - INTERVAL '13' DAY, 2, 'Completed'),
+(3, 3, 3, SYSTIMESTAMP - INTERVAL '10' DAY, SYSTIMESTAMP - INTERVAL '8' DAY, 3, 'Cancelled'),
+(4, 4, 4, SYSTIMESTAMP - INTERVAL '5' DAY, SYSTIMESTAMP - INTERVAL '3' DAY, 4, 'Confirmed'),
+(5, 5, 5, SYSTIMESTAMP - INTERVAL '2' DAY, SYSTIMESTAMP + INTERVAL '1' DAY, 5, 'Confirmed'),
+(6, 6, 6, SYSTIMESTAMP + INTERVAL '3' DAY, SYSTIMESTAMP + INTERVAL '5' DAY, 6, 'Confirmed'),
+(7, 7, 7, SYSTIMESTAMP + INTERVAL '6' DAY, SYSTIMESTAMP + INTERVAL '8' DAY, 7, 'Pending'),
+(8, 8, 8, SYSTIMESTAMP + INTERVAL '9' DAY, SYSTIMESTAMP + INTERVAL '11' DAY, 8, 'Pending');
+
