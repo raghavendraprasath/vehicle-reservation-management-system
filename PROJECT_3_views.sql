@@ -1,50 +1,21 @@
-
--- VIEWS
-
-
-CREATE OR REPLACE VIEW Current_Inventory_Status AS
-SELECT 
-    v.vehicle_id,
-    v.make,
-    v.model,
-    v.year,
-    v.status,
-    l.address,
-    l.city,
-    l.state,
-    l.zip_code,
-    v.price_per_hour
-FROM 
-    Vehicles v
-JOIN 
-    Locations l ON v.location_id = l.location_id
-WHERE 
-    v.status IN ('Available', 'Reserved', 'In Maintenance');
-    
-    
-    
-
-
-
-
+-- View for Reservation Revenue Analysis
 CREATE OR REPLACE VIEW Reservation_Revenue_Analysis AS
 SELECT 
     v.vehicle_id,
     v.make,
     v.model,
-    SUM(v.price_per_hour * (r.end_time - r.start_time) * 24) AS total_revenue
+    SUM(v.price_per_hour * (EXTRACT(HOUR FROM (r.end_time - r.start_time)) + 
+                            EXTRACT(DAY FROM (r.end_time - r.start_time)) * 24)) AS total_revenue
 FROM 
     Reservations r
 JOIN 
     Vehicles v ON r.vehicle_id = v.vehicle_id
 GROUP BY 
     v.vehicle_id, v.make, v.model;
-    
-    
-    
-    
-    
-    
+
+
+
+-- View for Most Popular Vehicles
 CREATE OR REPLACE VIEW Most_Popular_Vehicles AS
 SELECT 
     v.vehicle_id,
@@ -59,10 +30,9 @@ GROUP BY
     v.vehicle_id, v.make, v.model
 ORDER BY 
     reservation_count DESC;
-    
-    
-    
-    
+
+
+-- View for Vehicle Availability by Location
 CREATE OR REPLACE VIEW Vehicle_Availability_By_Location AS
 SELECT 
     l.location_id,
