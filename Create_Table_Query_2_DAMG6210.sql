@@ -85,7 +85,7 @@ END;
 CREATE TABLE Payments (
     payment_id NUMBER PRIMARY KEY,
     user_id NUMBER NOT NULL,
-    reservation_id NUMBER,  
+    reservation_id NUMBER,   
     insurance_id NUMBER,
     amount NUMBER(10, 2) NOT NULL,
     payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -317,9 +317,11 @@ CREATE TABLE Reassignments (
 DELETE FROM Reassignments;
 
 -- Insert new data
-INSERT INTO Reassignments (reassignment_id, reservation_id, old_vehicle_id, new_vehicle_id, reassignment_reason, status) VALUES
-(1, 1, 1, 2, 'Vehicle breakdown', 'Completed'),
-(2, 2, 2, 3, 'Customer preference', 'Completed'),
-(3, 3, 3, 4, 'Maintenance issue', 'Pending'),
-(4, 4, 4, 5, 'Vehicle upgrade', 'Completed'),
-(5, 5, 5, 6, 'Vehicle unavailability', 'Failed');
+INSERT INTO Reassignments (reassignment_id, reservation_id, old_vehicle_id, new_vehicle_id, reassignment_reason, status, reassignment_date) VALUES
+(1, 1, 1, 2, 'Vehicle breakdown', 'Completed', CURRENT_TIMESTAMP),
+(2, 2, 2, 3, 'Customer preference', 'Completed', CURRENT_TIMESTAMP),
+(3, 3, 3, 4, 'Maintenance issue', 'Pending', CURRENT_TIMESTAMP),
+(4, 4, 4, 5, 'Vehicle upgrade', 'Completed', CURRENT_TIMESTAMP),
+(5, 5, 5, 6, 'Vehicle unavailability', 'Failed', CURRENT_TIMESTAMP);
+
+
