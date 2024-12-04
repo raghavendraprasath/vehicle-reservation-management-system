@@ -117,31 +117,51 @@ CREATE TABLE Vehicles (
     vehicle_id NUMBER PRIMARY KEY,
     make VARCHAR2(50) NOT NULL,
     model VARCHAR2(50) NOT NULL,
-    year NUMBER NOT NULL,
-    status VARCHAR2(20) DEFAULT 'Available',
-    assigned_to_reservation VARCHAR2(20) DEFAULT 'No' CHECK (assigned_to_reservation IN ('Yes', 'No')),
+    year NUMBER NOT NULL CHECK (year >= 1886), -- Only lower bound enforced in the table
+    status VARCHAR2(20) DEFAULT 'Available' CHECK (status IN ('Available', 'Reserved', 'Unavailable')), -- Ensures valid statuses
+    assigned_to_reservation VARCHAR2(20) DEFAULT 'No' CHECK (assigned_to_reservation IN ('Yes', 'No')), -- Binary indicator for reservation
+    last_reserved_date TIMESTAMP,
     location_id NUMBER,
-    price_per_hour NUMBER(10, 2) NOT NULL,
+    price_per_hour NUMBER(10, 2) NOT NULL CHECK (price_per_hour >= 0), -- Ensures non-negative pricing
     max_retail_price NUMBER(10, 2) NOT NULL,
-    longitude NUMBER(9, 4),
-    latitude NUMBER(9, 4),
-    FOREIGN KEY (location_id) REFERENCES Locations(location_id)
+    longitude NUMBER(9, 4) CHECK (longitude BETWEEN -180 AND 180), -- Valid longitude range
+    latitude NUMBER(9, 4) CHECK (latitude BETWEEN -90 AND 90), -- Valid latitude range
+    FOREIGN KEY (location_id) REFERENCES Locations(location_id),
+    CONSTRAINT chk_price CHECK (max_retail_price >= price_per_hour) -- Table-level check for cross-column constraint
 );
+
+CREATE OR REPLACE TRIGGER trg_check_vehicle_year
+BEFORE INSERT OR UPDATE ON Vehicles
+FOR EACH ROW
+BEGIN
+    IF :NEW.year > EXTRACT(YEAR FROM SYSDATE) THEN
+        RAISE_APPLICATION_ERROR(-20001, 'Year cannot be in the future.');
+    END IF;
+END;
+/
+
+
+
 
 
 -- Clear existing data
 DELETE FROM Vehicles;
 
 -- Insert new data
-INSERT INTO Vehicles (vehicle_id, make, model, year, status, assigned_to_reservation, location_id, price_per_hour, max_retail_price, longitude, latitude) VALUES
-(1, 'Toyota', 'Camry', 2020, 'Available', 'No', 1, 15.50, 25000, -89.6500, 39.8000),
-(2, 'Honda', 'Civic', 2021, 'Available', 'No', 2, 17.00, 22000, -89.6501, 39.8001),
-(3, 'Ford', 'Focus', 2019, 'Available', 'No', 3, 12.75, 18000, -89.6502, 39.8002),
-(4, 'Chevrolet', 'Malibu', 2018, 'Available', 'No', 4, 16.00, 21000, -89.6503, 39.8003),
-(5, 'Nissan', 'Altima', 2020, 'Available', 'No', 5, 18.25, 23000, -89.6504, 39.8004),
-(6, 'Hyundai', 'Elantra', 2021, 'Available', 'No', 6, 14.50, 20000, -89.6505, 39.8005),
-(7, 'Volkswagen', 'Passat', 2019, 'Available', 'No', 7, 15.75, 19000, -89.6506, 39.8006),
-(8, 'Subaru', 'Impreza', 2022, 'Available', 'No', 8, 19.00, 24000, -89.6507, 39.8007);
+INSERT INTO Vehicles (
+    vehicle_id, make, model, year, status, assigned_to_reservation, last_reserved_date, location_id, 
+    price_per_hour, max_retail_price, longitude, latitude
+) VALUES
+(1, 'Toyota', 'Camry', 2020, 'Available', 'No', NULL, 1, 15.50, 25000.00, -89.6500, 39.8000),
+(2, 'Honda', 'Civic', 2021, 'Available', 'No', NULL, 2, 17.00, 22000.00, -89.6501, 39.8001),
+(3, 'Ford', 'Focus', 2019, 'Available', 'No', NULL, 3, 12.75, 18000.00, -89.6502, 39.8002),
+(4, 'Chevrolet', 'Malibu', 2018, 'Available', 'No', NULL, 4, 16.00, 21000.00, -89.6503, 39.8003),
+(5, 'Nissan', 'Altima', 2020, 'Available', 'No', NULL, 5, 18.25, 23000.00, -89.6504, 39.8004),
+(6, 'Hyundai', 'Elantra', 2021, 'Available', 'No', NULL, 6, 14.50, 20000.00, -89.6505, 39.8005),
+(7, 'Volkswagen', 'Passat', 2019, 'Available', 'No', NULL, 7, 15.75, 19000.00, -89.6506, 39.8006),
+(8, 'Subaru', 'Impreza', 2022, 'Available', 'No', NULL, 8, 19.00, 24000.00, -89.6507, 39.8007);
+
+
 
 
 
@@ -235,14 +255,10 @@ CREATE TABLE Reservations (
 -- Clear existing data
 DELETE FROM Reservations;
 
--- Insert new data
-INSERT INTO Reservations (reservation_id, user_id, vehicle_id, start_time, end_time, location_id, status) VALUES
-(1, 1, 1, SYSTIMESTAMP - INTERVAL '20' DAY, SYSTIMESTAMP - INTERVAL '18' DAY, 1, 'Completed'),
-(2, 2, 2, SYSTIMESTAMP - INTERVAL '15' DAY, SYSTIMESTAMP - INTERVAL '13' DAY, 2, 'Completed'),
-(3, 3, 3, SYSTIMESTAMP - INTERVAL '10' DAY, SYSTIMESTAMP - INTERVAL '8' DAY, 3, 'Cancelled'),
-(4, 4, 4, SYSTIMESTAMP - INTERVAL '5' DAY, SYSTIMESTAMP - INTERVAL '3' DAY, 4, 'Confirmed'),
-(5, 5, 5, SYSTIMESTAMP - INTERVAL '2' DAY, SYSTIMESTAMP + INTERVAL '1' DAY, 5, 'Confirmed'),
-(6, 6, 6, SYSTIMESTAMP + INTERVAL '3' DAY, SYSTIMESTAMP + INTERVAL '5' DAY, 6, 'Confirmed'),
-(7, 7, 7, SYSTIMESTAMP + INTERVAL '6' DAY, SYSTIMESTAMP + INTERVAL '8' DAY, 7, 'Pending'),
-(8, 8, 8, SYSTIMESTAMP + INTERVAL '9' DAY, SYSTIMESTAMP + INTERVAL '11' DAY, 8, 'Pending');
 
+-- Insert new data into Reservations
+INSERT INTO Reservations (
+    reservation_id, user_id, vehicle_id, start_time, end_time, location_id, status
+) VALUES
+(1, 1, 1, SYSTIMESTAMP - INTERVAL '20' DAY, SYSTIMESTAMP - INTERVAL '18' DAY, 1, 'Completed'),
+(2, 2, 2, SYSTIMESTAMP - INTERVAL '15' DAY, SYSTIMESTAMP - INTERVAL '13' DAY, 2, 'Completed')
