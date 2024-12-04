@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<displays>
+<display id="7f5e75f0-0193-1000-8006-7f000001e114" type="" style="Table" enable="true">
+	<name><![CDATA[Vehicles Assigned to Reservations Report]]></name>
+	<description><![CDATA[This report can quickly show which vehicles are assigned and whether they are being used for confirmed or pending reservations. It justifies the automation of vehicle assignment as it ensures real-time tracking and avoids manual errors.]]></description>
+	<tooltip><![CDATA[]]></tooltip>
+	<drillclass><![CDATA[]]></drillclass>
+	<CustomValues>
+		<TYPE><![CDATA[horizontal]]></TYPE>
+	</CustomValues>
+	<query>
+		<sql><![CDATA[SELECT 
+    v.vehicle_id, 
+    v.make, 
+    v.model, 
+    v.status, 
+    r.reservation_id, 
+    r.user_id, 
+    r.status AS reservation_status
+FROM 
+    PROJECT_USER.Vehicles v
+JOIN 
+    PROJECT_USER.Reservations r ON v.vehicle_id = r.vehicle_id
+WHERE 
+    v.assigned_to_reservation = 'Yes'
+ORDER BY 
+    r.start_time]]></sql>
+	</query>
+</display>
+</displays>
