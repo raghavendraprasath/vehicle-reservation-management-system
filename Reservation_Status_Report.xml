@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<displays>
+<display id="7f5d52af-0193-1000-8005-7f000001e114" type="" style="Table" enable="true">
+	<name><![CDATA[Reservation Status Report]]></name>
+	<description><![CDATA[To monitor the status of all reservations, categorizing them by status (Confirmed, Pending, Completed, or Cancelled).]]></description>
+	<tooltip><![CDATA[]]></tooltip>
+	<drillclass><![CDATA[]]></drillclass>
+	<CustomValues>
+		<TYPE><![CDATA[horizontal]]></TYPE>
+	</CustomValues>
+	<query>
+		<sql><![CDATA[SELECT 
+    reservation_id, 
+    user_id, 
+    vehicle_id, 
+    start_time, 
+    end_time, 
+    status 
+FROM 
+    PROJECT_USER.Reservations
+ORDER BY 
+    start_time]]></sql>
+	</query>
+</display>
+</displays>

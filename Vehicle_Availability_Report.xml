@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<displays>
+<display id="7f2b2f57-0193-1000-8002-7f000001e114" type="" style="Table" enable="true">
+	<name><![CDATA[Vehicle Availability Report]]></name>
+	<description><![CDATA[To track and display the availability of all vehicles based on their current status (Reserved, Available, Unavailable).]]></description>
+	<tooltip><![CDATA[]]></tooltip>
+	<drillclass><![CDATA[]]></drillclass>
+	<CustomValues>
+		<TYPE><![CDATA[horizontal]]></TYPE>
+	</CustomValues>
+	<query>
+		<sql><![CDATA[SELECT 
+    vehicle_id, 
+    make, 
+    model, 
+    status, 
+    assigned_to_reservation, 
+    location_id 
+FROM 
+    PROJECT_USER.Vehicles
+WHERE 
+    status = 'Available']]></sql>
+	</query>
+</display>
+</displays>

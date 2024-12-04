@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<displays>
+<display id="7f64259d-0193-1000-800a-7f000001e114" type="" style="Table" enable="true">
+	<name><![CDATA[Location-Based Vehicle Availability Report]]></name>
+	<description><![CDATA[To show the availability of vehicles by location, helping fleet managers allocate resources efficiently and ensuring the right vehicles are available where needed.]]></description>
+	<tooltip><![CDATA[]]></tooltip>
+	<drillclass><![CDATA[]]></drillclass>
+	<CustomValues>
+		<TYPE><![CDATA[horizontal]]></TYPE>
+	</CustomValues>
+	<query>
+		<sql><![CDATA[SELECT 
+    location_id, 
+    COUNT(vehicle_id) AS total_vehicles, 
+    SUM(CASE WHEN status = 'Available' THEN 1 ELSE 0 END) AS available_vehicles
+FROM 
+    PROJECT_USER.Vehicles
+GROUP BY 
+    location_id]]></sql>
+	</query>
+</display>
+</displays>
