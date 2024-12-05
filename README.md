@@ -14,9 +14,12 @@ https://github.com/rohanjauhari1312/DAMG-6210_PROJECT_TEAM_19
 Prerequisites
 1.	SQL Environment: Ensure you are running following scripts using Oracle SQL Developer.
 2.	Database Setup: Make sure the database service is running, and you have access with the necessary privileges to create users, tables, views and execute scripts.
-3.	SQL Files: Download all the required SQL script files from the GitHub repository (
+3.	SQL Files: Download all the required SQL script files from the GitHub repository
+
 Order of Execution
+
 Run the following SQL scripts in the specified order to set up the project database:
+
 1.	PROJECT_USER_CREATION_GRANTS.sql
 o	This script sets up necessary users (e.g., PROJECT_USER and ANALYST_USER) and grants appropriate permissions.
 o	Run (this file as system admin): Execute the script to create users and assign privileges.
