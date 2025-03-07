@@ -1,13 +1,6 @@
 Instruction Sheet for Running SQL Project Scripts
 Project Title: Zipcar Vehicle Rental Management System
-Project – Group 19
-1. Nikhil Pandey – 002775062
-2. Raghavendra Prasath Sridhar – 0023112779
-3. Rohan Manish Jauhari – 002324427
-4. Hardi Manish Shah – 002301430
 
-In order to access the project please open the GitHub repository in the following link:
-https://github.com/rohanjauhari1312/DAMG-6210_PROJECT_TEAM_19
 
 ** IF ANY I/O OR CONNECTION ERROR PLEASE TRY TO CONNECT TO THE SESSION OF THE PARTICULAR USER AND RERUN THE SCRIPTS **
 
